@@ -1,5 +1,5 @@
-M = 2
-N = 4
+M = 2**15
+N = 100
 
 def from_int(num, M, N):
     result = []
@@ -100,7 +100,33 @@ def times(first_value, second_value, M, N):
         result = sum(result, res, M, N)
     return normalize(result, M, N)
 
+def div(first_value, second_value, M, N): 
+    if compare(second_value, [0]) == 0:
+        raise ZeroDivisionError("division by zero")
+    
+    if compare(first_value, second_value) == -1:
+        return [0]
+    
+    result = [0]
+    remainder = [0]
 
-a = from_int(0b1010, M, N)
-b = from_int(0b11, M, N)
-print(times(b, a, M, N))
+    for i in range(len(first_value)):
+        
+        remainder = remainder + [first_value[i]]
+        remainder = normalize(remainder, M, N)
+        
+        count = 0
+        
+        while compare(remainder, second_value) >= 0:
+            remainder = sub(remainder, second_value, M, N)
+            count += 1
+        
+        result = result + [count]
+        result = normalize(result, M, N)
+    
+    return normalize(result, M, N)
+
+
+a = from_int(0b110, M, N)
+b = from_int(0b10, M, N)
+print(div(a, b, M, N))
