@@ -72,9 +72,35 @@ def sub(first_value, second_value, M, N):
             result.append(res)
         result.reverse()
         return normalize(result, M, N)
-            
+    else:
+        new_second_value = sub(sub(second_value, first_value, M, N), from_int(1, M, N), M, N)
+        new_first_value = [M-1] * N
+        return sub(new_first_value, new_second_value, M, N)
+
+def times(first_value, second_value, M, N):
+    result = [0]
+    first_value.reverse()
+    second_value.reverse()
+
+    for i in range(len(second_value)):
+        if second_value[i] == 0:
+            continue
+        
+        carry_over = 0
+        res = []
+        for j in range(len(first_value)):
+            t = first_value[j] * second_value[i] + carry_over
+            res.append(t % M)
+            carry_over = t // M
+        if carry_over > 0:
+            res.append(carry_over)
+        res.reverse()
+        res = res + [0] * i
+        
+        result = sum(result, res, M, N)
+    return normalize(result, M, N)
 
 
-a = from_int(0b1001, M, N)
+a = from_int(0b1010, M, N)
 b = from_int(0b11, M, N)
-print(sub(a, b, M, N), bin(0b1001 - 0b11))
+print(times(b, a, M, N))
