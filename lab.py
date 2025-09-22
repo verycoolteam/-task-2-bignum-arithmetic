@@ -129,4 +129,4 @@ def div(first_value, second_value, M, N):
 
 a = from_int(0b110, M, N)
 b = from_int(0b10, M, N)
-print(div(a, b, M, N))
+print(sum(a, b, M, N), sub(a, b, M, N), times(a, b, M, N), div(a, b, M, N))
