@@ -90,7 +90,7 @@ def times(first_value, second_value, M, N):
     if a == [0] or b == [0]:
         return [0]
     res = [0] * (len(a) + len(b))
-    # schoolbook multiplication, без мутаций
+
     for i in range(len(a) - 1, -1, -1):
         carry = 0
         for j in range(len(b) - 1, -1, -1):
