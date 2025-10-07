@@ -1,10 +1,12 @@
-M = 2**15
-N = 100
+M = 10
+N = 2
+
 
 def normalize(num, M=None, N=None):
     while len(num) > 1 and num[0] == 0:
         num = num[1:]
     return num
+
 
 def to_int(num, M):
     num = normalize(num)
@@ -13,15 +15,19 @@ def to_int(num, M):
         result = result * M + digit
     return result
 
-def from_int(num, M=2**15, N=100):
-    if num == 0:
-        return [0]
+
+def from_int(num, M, N):
+
+    mod = M ** N
+    num %= mod
+
     digits = []
-    while num > 0:
+    for _ in range(N):
         digits.append(num % M)
         num //= M
     digits.reverse()
-    return normalize(digits)
+    return digits  
+
 
 def compare(first_value, second_value):
     a = normalize(first_value[:])
@@ -36,6 +42,7 @@ def compare(first_value, second_value):
         if x < y:
             return -1
     return 0
+
 
 def sum(first_value, second_value, M, N):
     a = first_value[-N:]
@@ -53,7 +60,8 @@ def sum(first_value, second_value, M, N):
     res[0] = carry
 
     res = res[-N:]
-    return normalize(res)
+    return res
+
 
 def sub(first_value, second_value, M, N):
     a = first_value[-N:]
@@ -80,13 +88,16 @@ def sub(first_value, second_value, M, N):
             val = res[i] + add_back[i] + carry
             res[i] = val % M
             carry = val // M
-    res = res[-N:]
-    return normalize(res)
 
-def mul_small(a, k, M, N=None):
+    res = res[-N:]
+    return res
+
+
+def mul_small(a, k, M, N):
     if k == 0 or a == [0]:
-        return [0]
-    a = a[-N:] 
+        return [0] * N
+
+    a = a[-N:]
     res = [0] * (len(a) + 1)
     carry = 0
     for i in range(len(a) - 1, -1, -1):
@@ -96,46 +107,48 @@ def mul_small(a, k, M, N=None):
     res[0] = carry
 
     res = res[-N:]
-    return normalize(res)
+    return res
+
 
 def times(first_value, second_value, M, N):
-    a = normalize(first_value[-N:])
-    b = normalize(second_value[-N:])
-    if a == [0] or b == [0]:
-        return [0]
+    a = first_value[-N:]
+    b = second_value[-N:]
+    if a == [0] * len(a) or b == [0] * len(b):
+        return [0] * N
 
-    res = [0] * (len(a) + len(b))
+    res = [0] * (2 * N)
+    len_a = len(a)
+    len_b = len(b)
 
-    for i in range(len(a) - 1, -1, -1):
+    for i in range(len_a - 1, -1, -1):
         carry = 0
-        for j in range(len(b) - 1, -1, -1):
+        for j in range(len_b - 1, -1, -1):
             idx = i + j + 1
             total = res[idx] + a[i] * b[j] + carry
             res[idx] = total % M
             carry = total // M
-        res[i] += carry 
-
-    for k in range(len(res) - 1, 0, -1):
-        if res[k] >= M:
-            carry = res[k] // M
-            res[k] %= M
-            res[k - 1] += carry
+        res[i] += carry
 
     res = res[-N:]
-    return normalize(res)
+    return res
 
 
 def div(first_value, second_value, M, N):
     if compare(second_value, [0]) == 0:
-        raise ZeroDivisionError("division by zero")
-    a = normalize(first_value[-N:])
-    b = normalize(second_value[-N:])
-    if compare(a, b) == -1:
-        return [0]
+        return [0] # division by zero
+
+    a = first_value[-N:]
+    b = second_value[-N:]
+    a = normalize(a)
+    b = normalize(b)
+    if compare(a, b) < 0:
+        return [0] * N
+
     quotient = []
     remainder = [0]
     for digit in a:
-        remainder = [digit] if remainder == [0] else (remainder + [digit])
+        
+        remainder = remainder + [digit]
         remainder = normalize(remainder)
 
         lo, hi = 0, M - 1
@@ -152,11 +165,15 @@ def div(first_value, second_value, M, N):
         if q:
             remainder = sub(remainder, mul_small(b, q, M, N), M, N)
 
-    quotient = quotient[-N:]  
-    return normalize(quotient)
+    quotient = quotient[-N:]
+    return quotient
 
-a = from_int(10000000000, M, N)
-b = from_int(1000000000, M, N)
+
+a = from_int(15000000000, M, N)  
+b = from_int(1000000000, M, N)   
+
+print(f"a = {a} --- {to_int(a, M)}")
+print(f"b = {b} --- {to_int(b, M)}")
 
 print("Sum:", sum(a, b, M, N), "---", to_int(sum(a, b, M, N), M))
 print("Sub:", sub(a, b, M, N), "---", to_int(sub(a, b, M, N), M))
